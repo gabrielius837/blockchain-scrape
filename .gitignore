@@ -1,0 +1,11 @@
+# ignore config
+.env
+
+# ignore possible sqlite blobs
+*.db
+
+# vscode
+.vscode
+
+# binary blob
+scraper
