@@ -83,16 +83,9 @@ func (hexUint *HexUint64) UnmarshalJSON(input []byte) error {
 	return nil
 }
 
-func (nullAddress NullAddress) IsNull() (bool, error) {
+func (nullAddress NullAddress) IsNull() bool {
 	length := len(nullAddress)
-	switch length {
-	case ADDRESS_LENGTH:
-		return false, nil
-	case ZERO_LENGTH:
-		return true, nil
-	default:
-		return false, fmt.Errorf("expected to have null address with length of %d or %d, instead %d", ADDRESS_LENGTH, ZERO_LENGTH, length)
-	}
+	return length == ZERO_LENGTH
 }
 
 type Block struct {

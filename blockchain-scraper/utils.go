@@ -217,6 +217,9 @@ func (address Address) GetChecksumAddress() ([]byte, error) {
 
 func (transaction Transaction) ComputeContractAddres() (Address, error) {
 	var contract Address
+	if !transaction.To.IsNull() {
+		return contract, fmt.Errorf("in order to compute new contract address need null 'to' address")
+	}
 	nonceBytes := make([]byte, 8)
 	binary.BigEndian.PutUint64(nonceBytes, uint64(transaction.Nonce))
 	nonceBytes = stripZeroes(nonceBytes)

@@ -110,10 +110,7 @@ func PersistBlock(db *sql.DB, block Block) error {
 			return err
 		}
 
-		isNull, err := tx.To.IsNull()
-		if err != nil {
-			return err
-		}
+		isNull := tx.To.IsNull()
 
 		if isNull {
 			contract, err := tx.ComputeContractAddres()

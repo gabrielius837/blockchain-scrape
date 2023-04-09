@@ -46,10 +46,7 @@ func TestNullAddressMapping_WhenAddress(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	isNull, err := result.IsNull()
-	if err != nil {
-		t.Fatal(err)
-	}
+	isNull := result.IsNull()
 
 	if isNull {
 		t.Fatalf("expected to have not null address, instead got:\n%v", result)
@@ -70,10 +67,7 @@ func TestNullAddressMapping_WhenNull(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	isNull, err := result.IsNull()
-	if err != nil {
-		t.Fatal(err)
-	}
+	isNull := result.IsNull()
 
 	if !isNull {
 		t.Fatalf("expected to have null address, instead got:\n%v", result)
