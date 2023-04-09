@@ -4,6 +4,7 @@ CREATE TABLE block (
     number INTEGER NOT NULL PRIMARY KEY
 );
 
+-- last block without any transactions
 INSERT INTO block VALUES(46146);
 
 CREATE TABLE address (

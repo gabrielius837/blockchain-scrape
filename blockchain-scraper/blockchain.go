@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -36,6 +37,10 @@ func InitRequest(apiKey string, payload io.Reader) ([]byte, error) {
 }
 
 func GetBlock(apiKey string, index uint64, number uint64) (*BlockResponse, error) {
+	if number >= 4370000 {
+		fmt.Fprintln(os.Stderr, "byzantium reached update program")
+		os.Exit(1)
+	}
 	body := fmt.Sprintf("{\"jsonrpc\":\"2.0\",\"method\":\"eth_getBlockByNumber\",\"params\":[\"0x%x\",true],\"id\":%d}", number, index)
 	payload := strings.NewReader(body)
 	bytes, err := InitRequest(apiKey, payload)
