@@ -7,9 +7,6 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.16
 )
 
-require (
-	github.com/ethereum/go-ethereum v1.11.3
-	golang.org/x/crypto v0.7.0
-)
+require golang.org/x/crypto v0.8.0
 
-require golang.org/x/sys v0.6.0 // indirect
+require golang.org/x/sys v0.7.0 // indirect

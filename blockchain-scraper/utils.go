@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/rlp"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -172,20 +171,29 @@ func stripQoutes(input []byte) []byte {
 	return input
 }
 
-func stripZeroes(bytes []byte) []byte {
-	length := len(bytes)
+func stripZeroes(input []byte) []byte {
+	length := len(input)
 	if length == 0 {
-		return bytes
+		return input
 	}
 
-	index := 0
-	for ; index < length; index++ {
-		if bytes[index] != 0 {
+	count := 0
+
+	for i := 0; i < length; i++ {
+		if input[i] > 0 {
 			break
 		}
+		count++
 	}
 
-	return bytes[index:]
+	switch count {
+	case 0:
+		return input
+	case length:
+		return nil
+	default:
+		return input[count:]
+	}
 }
 
 func (address Address) GetChecksumAddress() ([]byte, error) {
@@ -224,12 +232,11 @@ func (transaction Transaction) ComputeContractAddres() (Address, error) {
 	binary.BigEndian.PutUint64(nonceBytes, uint64(transaction.Nonce))
 	nonceBytes = stripZeroes(nonceBytes)
 
-	bytes, err := rlp.EncodeToBytes([][]byte{transaction.From[:], nonceBytes})
-	if err != nil {
-		return contract, err
-	}
+	slice := transaction.From[:]
+	bytes := RlpEncodeArray([][]byte{slice, nonceBytes})
+	fmt.Printf("0x%x\n", bytes)
 	hasher := sha3.NewLegacyKeccak256()
-	_, err = hasher.Write(bytes)
+	_, err := hasher.Write(bytes)
 	if err != nil {
 		return contract, err
 	}
@@ -242,4 +249,85 @@ func (transaction Transaction) ComputeContractAddres() (Address, error) {
 	}
 
 	return contract, nil
+}
+
+// https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/
+func RlpEncodeArray(input [][]byte) []byte {
+	length := len(input)
+
+	for i := 0; i < length; i++ {
+		fmt.Printf("0x%x\n", input[i])
+	}
+	switch length {
+	case 0:
+		return []byte{0xc0}
+	case 1:
+		return RlpEncodeBytes(input[0])
+	default:
+		sum := 0
+		for i := 0; i < length; i++ {
+			result := RlpEncodeBytes(input[i])
+			sum += len(result)
+			input[i] = result
+		}
+
+		if sum < 56 {
+			result := make([]byte, sum+1)
+			result[0] = byte(0xc0 + sum)
+			offset := 1
+			for i := 0; i < length; i++ {
+				copy(result[offset:], input[i])
+				offset += len(input[i])
+			}
+			return result
+		} else {
+			lengthRepresentation := make([]byte, 4)
+			binary.BigEndian.PutUint32(lengthRepresentation, uint32(length))
+			lengthRepresentation = stripZeroes(lengthRepresentation)
+			lengthOfRepresentation := len(lengthRepresentation)
+			result := make([]byte, 1+lengthOfRepresentation+length)
+			result[0] = byte(0xf7 + lengthOfRepresentation)
+			copy(result[1:], lengthRepresentation)
+			offset := 1 + lengthOfRepresentation
+			for i := 1; i < length; i++ {
+				copy(result[offset:], input[i])
+				offset += len(input[i])
+			}
+			return result
+		}
+		//return bytes.Join(input, []byte{})
+	}
+}
+
+func RlpEncodeBytes(input []byte) []byte {
+	length := len(input)
+
+	switch length {
+	case 0:
+		return []byte{0x80}
+	case 1:
+		value := input[0]
+		if value < 128 {
+			return input
+		} else {
+			return []byte{0x81, value}
+		}
+	default:
+		if length < 56 {
+			result := make([]byte, length+1)
+			result[0] = 0x80 + byte(length)
+			copy(result[1:], input)
+			return result
+		} else {
+			lengthRepresentation := make([]byte, 4)
+			binary.BigEndian.PutUint32(lengthRepresentation, uint32(length))
+			lengthRepresentation = stripZeroes(lengthRepresentation)
+			lengthOfRepresentation := len(lengthRepresentation)
+			result := make([]byte, 1+lengthOfRepresentation+length)
+			result[0] = byte(0xb7 + lengthOfRepresentation)
+			copy(result[1:], lengthRepresentation)
+			copy(result[(1+lengthOfRepresentation):], input)
+			return result
+		}
+	}
 }

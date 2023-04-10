@@ -22,7 +22,7 @@ func TestHexToBytes_WhenDefault(t *testing.T) {
 		expectedByte := expected[i]
 		resultByte := result[i]
 		if expectedByte != resultByte {
-			t.Fatalf("expected and result bytes are not matching at index %d\n%v\n%v", i, expected, result)
+			t.Fatalf("expected and result bytes are not matching at index %d\nexpected: %v\nresult: %v", i, expected, result)
 		}
 	}
 }
@@ -44,7 +44,7 @@ func TestHexToBytes_WhenOdd(t *testing.T) {
 		expectedByte := expected[i]
 		resultByte := result[i]
 		if expectedByte != resultByte {
-			t.Fatalf("expected and result bytes are not matching at index %d\n%v\n%v", i, expected, result)
+			t.Fatalf("expected and result bytes are not matching at index %d\nexpected: %v\nresult: %v", i, expected, result)
 		}
 	}
 }
@@ -66,7 +66,7 @@ func TestHexToBytes_WhenQoutes(t *testing.T) {
 		expectedByte := expected[i]
 		resultByte := result[i]
 		if expectedByte != resultByte {
-			t.Fatalf("expected and result bytes are not matching at index %d\n%v\n%v", i, expected, result)
+			t.Fatalf("expected and result bytes are not matching at index %d\nexpected: %v\nresult: %v", i, expected, result)
 		}
 	}
 }
@@ -88,7 +88,7 @@ func TestHexToBytes_WhenQuotesAndOdd(t *testing.T) {
 		expectedByte := expected[i]
 		resultByte := result[i]
 		if expectedByte != resultByte {
-			t.Fatalf("expected and result bytes are not matching at index %d\n%v\n%v", i, expected, result)
+			t.Fatalf("expected and result bytes are not matching at index %d\nexpected: %v\nresult: %v", i, expected, result)
 		}
 	}
 }
@@ -198,7 +198,22 @@ func TestComputeContractAddress(t *testing.T) {
 		expectedByte := expected[i]
 		resultByte := result[i]
 		if expectedByte != resultByte {
-			t.Fatalf("expected and result bytes are not matching at index %d\n%v\n%v", i, expected, result)
+			t.Fatalf("expected and result bytes are not matching at index %d\nexpected: %v\nresult: %v", i, expected, result)
 		}
+	}
+}
+
+func TestRlpEncodeArray(t *testing.T) {
+	address := []byte{76, 231, 243, 100, 108, 201, 130, 246, 70, 157, 91, 36, 62, 221, 54, 233, 175, 137, 192, 240}
+	nonce := []byte{0xfe, 0xfe}
+	expected := []byte{216, 148, 76, 231, 243, 100, 108, 201, 130, 246, 70, 157, 91, 36, 62, 221, 54, 233, 175, 137, 192, 240, 130, 254, 254}
+
+	result := RlpEncodeArray([][]byte{address, nonce})
+
+	expectedLength := len(expected)
+	resultLength := len(result)
+
+	if expectedLength != resultLength {
+		t.Fatalf("expected to result are not matching in length %d != %d\nexpected: %v\nresult: %v", expectedLength, resultLength, expected, result)
 	}
 }
