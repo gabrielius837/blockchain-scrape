@@ -234,7 +234,6 @@ func (transaction Transaction) ComputeContractAddres() (Address, error) {
 
 	slice := transaction.From[:]
 	bytes := RlpEncodeArray([][]byte{slice, nonceBytes})
-	fmt.Printf("0x%x\n", bytes)
 	hasher := sha3.NewLegacyKeccak256()
 	_, err := hasher.Write(bytes)
 	if err != nil {
@@ -255,9 +254,6 @@ func (transaction Transaction) ComputeContractAddres() (Address, error) {
 func RlpEncodeArray(input [][]byte) []byte {
 	length := len(input)
 
-	for i := 0; i < length; i++ {
-		fmt.Printf("0x%x\n", input[i])
-	}
 	switch length {
 	case 0:
 		return []byte{0xc0}
@@ -310,7 +306,7 @@ func RlpEncodeBytes(input []byte) []byte {
 		if value < 128 {
 			return input
 		} else {
-			return []byte{0x81, value}
+			return []byte{0x80 + 1, value}
 		}
 	default:
 		if length < 56 {
