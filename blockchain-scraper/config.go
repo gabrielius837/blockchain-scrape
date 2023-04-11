@@ -1,19 +1,26 @@
 package blockchainscrape
 
 import (
+	"database/sql"
 	"fmt"
+	"log"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
 	ApiKey   string
 	Database string
+	Run      bool
 }
 
-func ReadConfig() (*Config, error) {
+func readConfig() (*Config, error) {
 	errors := []string{}
-	config := &Config{}
+	config := &Config{Run: true}
 	var key, value string
 	var exists bool
 	errMsg := "%s is missing"
@@ -42,4 +49,38 @@ func ReadConfig() (*Config, error) {
 	}
 
 	return config, nil
+}
+
+func (config *Config) CatchSignal() {
+	signalChannel := make(chan os.Signal, 1)
+	signal.Notify(signalChannel, syscall.SIGINT)
+	<-signalChannel
+	log.Println("gracefully shutting down")
+	config.Run = false
+}
+
+func GetConfig() *Config {
+	err := godotenv.Load(".env")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	config, err := readConfig()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	return config
+}
+
+func (config *Config) InitDb() *sql.DB {
+	db, err := initDb(config.Database, "init.sql")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	return db
 }

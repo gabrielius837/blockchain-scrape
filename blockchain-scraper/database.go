@@ -29,7 +29,7 @@ func GetTxInsert(tx Transaction) string {
 	return fmt.Sprintf(INSERT_TX, tx.Hash, tx.From, tx.To)
 }
 
-func InitDb(dbName string, schemaFile string) (*sql.DB, error) {
+func initDb(dbName string, schemaFile string) (*sql.DB, error) {
 	_, fsErr := os.Stat(dbName)
 	log.Printf("Connecting to %s...\n", dbName)
 	db, err := sql.Open("sqlite3", dbName)

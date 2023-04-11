@@ -19,7 +19,7 @@ func TestMain(m *testing.M) {
 }
 
 func initTestDb(dbName string, t *testing.T) (*sql.DB, uint64) {
-	db, err := InitDb(dbName, "../init.sql")
+	db, err := initDb(dbName, "../init.sql")
 	if err != nil {
 		t.Fatal(err)
 	}
